@@ -1,0 +1,112 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #007775;
+    color: #fff;
+    line-height: 1.6;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  button {
+    background-color: #fff;
+    color: #007775;
+    border: #fff;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #fff;
+    color: #020202;
+  }
+  
+  button:active {
+    background-color: linear-gradient(red,blue);
+  }
+  
+  h1 {
+    font-size: 2rem;
+    margin: 20px 0;
+  }
+  
+  h2 {
+    font-size: 1.2rem;
+    color: #e63946;
+  }
+  
+  form {
+    margin: 20px auto;
+    max-width: 300px;
+  }
+  
+  input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  p {
+    margin: 10px 0;
+    font-size: 1rem;
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 10px;
+    color: #fff;
+  }
+  
+  /* Styling for labels and sections */
+  label {
+    font-weight: bold;
+    display: block;
+    margin: 10px 0 5px;
+  }
+  
+  /* Additional styling for interactive elements */
+  input[type="checkbox"] + label {
+    font-weight: normal;
+    margin: 0;
+  }
+  
+  #conclusion {
+    font-weight: bold;
+    margin: 20px 0;
+  }
+  
+  #averagetime {
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    button {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+    }
+  
+    h2 {
+      font-size: 1rem;
+    }
+  
+    p {
+      font-size: 0.9rem;
+    }
+  }
+  

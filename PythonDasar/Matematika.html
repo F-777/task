@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="./Rectangle 46.png" type="image">
+</head>
+<body id="body">
+  <button onclick="setDifficulty('ez')">Easy</button>
+  <button onclick="setDifficulty('md')">Medium</button>
+  <button onclick="setDifficulty('hd')">Hard</button>
+  <button onclick="setDifficulty('ex')">Extreme</button>
+  <button onclick="setDifficulty('im')">Impossible</button>
+  <h1 id="question">Input To Start</h1>
+  <form id="form">
+    <input type="number" step="0.001" id="answer" autocomplete="off" maxlength="10">
+  </form>
+  <p id="conclusion"></p>
+  <p id="averagetime">Average Time: 0s</p>
+  <h2 id="err"></h2>
+  <br><br>
+  Number:
+  <input type="checkbox" id="decimal"> Decimal
+  <input type="checkbox" id="negative"> Negative
+  <br><br>
+  Answer:
+  <input type="checkbox" id="decimal_answer" checked> Decimal
+  <input type="checkbox" id="negative_answer" checked> Negative
+  <br><br>
+  <input type="checkbox" id="decimal_hard"> Harder Decimal<br>
+  <input type="checkbox" id="pro" onclick="setDifficulty('pro')"> Pro Mode<br>
+  <input type="checkbox" id="close"> Correct Close Answer
+  <br><br>
+  Equation:<br>
+  <input type="checkbox" id="plus" checked> +<br>
+  <input type="checkbox" id="minus" checked> -<br>
+  <input type="checkbox" id="times" checked> *<br>
+  <input type="checkbox" id="divides" checked> /
+  <br><br>
+  Question:
+  <input type="number" min="0" id="Lquestion" placeholder="Infinite">
+  <br><br>
+  Limit Question Timer:
+  <input type="number" min="0" id="Qtimer" placeholder="Infinite (s)"><br>
+  Limit Total Timer:
+  <input type="number" min="0" id="Ttimer" placeholder="Infinite (s)">
+  <br><br>
+  <button onclick="font()">Change Text Style</button>
+  <script>
+    let result;
+    let range = 10;
+    let timer;
+    let hintTimeout;
+    let questionTimer;
+    let counter = 0;
+    let totalTime = 0;
+    let questionsAnswered = 0;
+    let first = true;
+
+    function generateRandomNumber(isDecimal, isNegative, effectiveRange) {
+      let number = Math.random() * effectiveRange;
+      let decimal = 1;
+      if (document.getElementById("decimal_hard").checked) {
+        decimal = 2;
+      }
+      if (isDecimal) {
+        if (Math.random() < 0.4) {
+          number = parseFloat(number.toFixed(decimal));
+        } else {
+          number = Math.floor(number) + 1;
+        }
+      } else {
+        number = Math.floor(number) + 1;
+      }
+
+      if (isNegative) {
+        number *= Math.random() < 0.4 ? -1 : 1;
+      }
+
+      return number;
+    }
+
+    function generate() {
+      clearInterval(timer);
+      counter = 0;
+      timer = setInterval(() => {
+        counter++;
+      }, 1000);
+      
+      let questionTimeLimit = document.getElementById("Qtimer").value;
+      if (questionTimeLimit > 0) {
+        clearTimeout(questionTimer);
+        questionTimer = setTimeout(() => {
+          console.log(counter);
+          document.getElementById("conclusion").innerHTML = "Times up!";
+          document.getElementById("conclusion").style.color = "darkred";
+          totalTime += counter;
+          questionsAnswered++;
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            document.getElementById("conclusion").innerHTML = "";
+          }, 3000);
+          const averageTime = (totalTime / questionsAnswered).toFixed(1);
+          document.getElementById("averagetime").innerHTML = `Average Time: ${averageTime}s`;
+          if (document.getElementById("Lquestion").value && questionsAnswered >= document.getElementById("Lquestion").value) {
+            document.getElementById("conclusion").innerHTML = `Question Answered: ${questionsAnswered}`;
+            document.getElementById("conclusion").style.color = "black";
+            clearTimeout(questionTimer);
+            clearTimeout(hintTimeout);
+            clearInterval(timer);
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              document.getElementById("conclusion").innerHTML = "";
+            }, 10000);
+            first = true;
+            totalTime = 0;
+            questionsAnswered = 0;
+            document.getElementById("question").innerHTML = "Input To Start";
+            document.getElementById("answer").placeholder = "";
+          } else {
+            let totalTimeLimit = document.getElementById("Ttimer").value;
+            if (totalTimeLimit > 0 && totalTime >= totalTimeLimit) {
+              clearInterval(timer);
+              document.getElementById("conclusion").innerHTML = `Question Answered: ${questionsAnswered}`;
+              document.getElementById("conclusion").style.color = "black";
+              clearTimeout(questionTimer);
+              clearTimeout(hintTimeout);
+              clearTimeout(timeout);
+              timeout = setTimeout(() => {
+                document.getElementById("conclusion").innerHTML = "";
+              }, 10000);
+              first = true;
+              totalTime = 0;
+              questionsAnswered = 0;
+              document.getElementById("question").innerHTML = "Input To Start";
+              document.getElementById("answer").placeholder = "";
+            } else {
+              generate();
+            }
+          }
+        }, questionTimeLimit * 1000);
+      }
+
+      const isDecimal = document.getElementById("decimal").checked;
+      const isNegative = document.getElementById("negative").checked;
+
+      let equation = Math.floor(Math.random() * 4) + 1;
+      let effectiveRange = range;
+
+      if (equation == 1 || equation == 2) {
+        effectiveRange = range * 1.5;
+      }
+
+      let random1 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+      let random2 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+
+      clearTimeout(hintTimeout);
+
+      let loop = true;
+      while (loop) {
+        switch (equation) {
+          case 1:
+            if (document.getElementById("plus").checked) {
+              document.getElementById("question").innerHTML = `${random1} + ${random2}`;
+              result = random1 + random2;
+              let valid_answer = true;
+              if (!document.getElementById("decimal_answer").checked) {
+                if (result % 1 != 0) {
+                  valid_answer = false;
+                }
+              }
+              if (!document.getElementById("negative_answer").checked) {
+                if (result < 0) {
+                  valid_answer = false;
+                }
+              }
+              if (valid_answer) {
+                loop = false;
+              } else {
+                random1 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+                random2 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+              }
+            } else {
+              equation = Math.floor(Math.random() * 4) + 1;
+              effectiveRange = range;
+              if (equation == 1 || equation == 2) {
+                effectiveRange = range * 1.5;
+              }
+            }
+            break;
+          case 2:
+            if (document.getElementById("minus").checked) {
+              document.getElementById("question").innerHTML = `${random1} - ${random2}`;
+              result = random1 - random2;
+              let valid_answer = true;
+              if (!document.getElementById("decimal_answer").checked) {
+                if (result % 1 != 0) {
+                  valid_answer = false;
+                }
+              }
+              if (!document.getElementById("negative_answer").checked) {
+                if (result < 0) {
+                  valid_answer = false;
+                }
+              }
+              if (valid_answer) {
+                loop = false;
+              } else {
+                random1 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+                random2 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+              }
+            } else {
+              equation = Math.floor(Math.random() * 4) + 1;
+              effectiveRange = range;
+              if (equation == 1 || equation == 2) {
+                effectiveRange = range * 1.5;
+              }
+            }
+            break;
+          case 3:
+            if (document.getElementById("times").checked) {
+              document.getElementById("question").innerHTML = `${random1} * ${random2}`;
+              result = random1 * random2;
+              let valid_answer = true;
+              if (!document.getElementById("decimal_answer").checked) {
+                if (result % 1 != 0) {
+                  valid_answer = false;
+                }
+              }
+              if (!document.getElementById("negative_answer").checked) {
+                if (result < 0) {
+                  valid_answer = false;
+                }
+              }
+              if (valid_answer) {
+                loop = false;
+              } else {
+                random1 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+                random2 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+              }
+            } else {
+              equation = Math.floor(Math.random() * 4) + 1;
+              effectiveRange = range;
+              if (equation == 1 || equation == 2) {
+                effectiveRange = range * 1.5;
+              }
+            }
+            break;
+          case 4:
+            if (document.getElementById("divides").checked) {
+              document.getElementById("question").innerHTML = `${random1} / ${random2}`;
+              result = random1 / random2;
+              let valid_answer = true;
+              if (!document.getElementById("decimal_answer").checked) {
+                if (result % 1 != 0) {
+                  valid_answer = false;
+                }
+              }
+              if (!document.getElementById("negative_answer").checked) {
+                if (result < 0) {
+                  valid_answer = false;
+                }
+              }
+              if (valid_answer) {
+                loop = false;
+              } else {
+                random1 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+                random2 = generateRandomNumber(isDecimal, isNegative, effectiveRange);
+              }
+            } else {
+              equation = Math.floor(Math.random() * 4) + 1;
+              effectiveRange = range;
+              if (equation == 1 || equation == 2) {
+                effectiveRange = range * 1.5;
+              }
+            }
+            break;
+        }
+      }
+
+      hintTimeout = setTimeout(() => {
+        const firstDigit = result.toString()[0];
+        document.getElementById("answer").placeholder = `${firstDigit}`;
+      }, 10000);
+    }
+
+    const form = document.getElementById('form');
+    let timeout;
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      let valid = true;
+      let message = "";
+      if (!(document.getElementById("plus").checked || document.getElementById("minus").checked || document.getElementById("times").checked || document.getElementById("divides").checked)) {
+        valid = false;
+        message = "Please pick at least one equation";
+      }
+      if (valid) {
+        let answer = Number(document.getElementById("answer").value);
+        if (!first) {
+          let nearrange = 0.1;
+          if (document.getElementById("close").checked) {
+            nearrange = 1;
+          }
+          if (result >= answer - 0.01 && result <= answer + 0.01) {
+            document.getElementById("conclusion").innerHTML = `Correct! (${counter}s)`;
+            document.getElementById("conclusion").style.color = "darkgreen";
+          } else if (result >= answer - nearrange && result <= answer + nearrange) {
+            document.getElementById("conclusion").innerHTML = `Correct! (${counter}s)`;
+            document.getElementById("conclusion").style.color = "#003200";
+          } else {
+            document.getElementById("conclusion").innerHTML = `Incorrect! (${counter}s)`;
+            document.getElementById("conclusion").style.color = "darkred";
+            counter += 1;
+          }
+          totalTime += counter;
+          questionsAnswered++;
+          const averageTime = (totalTime / questionsAnswered).toFixed(1);
+          document.getElementById("averagetime").innerHTML = `Average Time: ${averageTime}s`;
+        } else {
+          document.getElementById("conclusion").innerHTML = `Timer Start!`;
+          document.getElementById("conclusion").style.color = "black";
+          document.getElementById("averagetime").innerHTML = `Average Time: 0s`;
+          first = false;
+        }
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          document.getElementById("conclusion").innerHTML = "";
+        }, 3000);
+        form.reset();
+        document.getElementById("answer").placeholder = "";
+        if (document.getElementById("Lquestion").value && questionsAnswered >= document.getElementById("Lquestion").value) {
+          document.getElementById("conclusion").innerHTML = `Question Answered: ${questionsAnswered}`;
+          document.getElementById("conclusion").style.color = "black";
+          clearInterval(timer);
+          clearTimeout(questionTimer);
+          clearTimeout(hintTimeout);
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            document.getElementById("conclusion").innerHTML = "";
+          }, 10000);
+          first = true;
+          totalTime = 0;
+          questionsAnswered = 0;
+          document.getElementById("question").innerHTML = "Input To Start";
+          document.getElementById("answer").placeholder = "";
+        } else {
+          let totalTimeLimit = document.getElementById("Ttimer").value;
+          if (totalTimeLimit > 0 && totalTime >= totalTimeLimit) {
+            clearInterval(timer);
+            document.getElementById("conclusion").innerHTML = `Question Answered: ${questionsAnswered}`;
+            document.getElementById("conclusion").style.color = "black";
+            clearTimeout(questionTimer);
+            clearTimeout(hintTimeout);
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              document.getElementById("conclusion").innerHTML = "";
+            }, 10000);
+            first = true;
+            totalTime = 0;
+            questionsAnswered = 0;
+            document.getElementById("question").innerHTML = "Input To Start";
+            document.getElementById("answer").placeholder = "";
+          } else {
+            generate();
+          }
+        }
+      } else {
+        document.getElementById("err").innerHTML = message;
+        setTimeout(() => {
+          document.getElementById("err").innerHTML = "";
+        }, 5000);
+      }
+    });
+
+    function setDifficulty(difficulty) {
+      first = true;
+      totalTime = 0;
+      questionsAnswered = 0;
+      document.getElementById("question").innerHTML = "Input To Start";
+      document.getElementById("averagetime").innerHTML = `Average Time: 0s`;
+      document.getElementById("answer").placeholder = "";
+      clearInterval(timer);
+      clearTimeout(questionTimer);
+      clearTimeout(hintTimeout);
+      clearTimeout(hintTimeout);
+      if (difficulty == "pro") {
+        const proRanges = { 10: 50, 20: 100, 50: 200, 100: 500, 200: 1000 };
+        range = document.getElementById("pro").checked ? proRanges[range] : Object.keys(proRanges).find(key => proRanges[key] == range);
+      } else {
+        const normalRanges = { ez: 10, md: 20, hd: 50, ex: 100, im: 200 };
+        const proRanges = { ez: 50, md: 100, hd: 200, ex: 500, im: 1000 };
+        range = document.getElementById("pro").checked ? proRanges[difficulty] : normalRanges[difficulty];
+      }
+    }
+
+    function font() {
+      const fonts = [
+        "Times New Roman, serif",
+        "Georgia, serif",
+        "Palatino Linotype, serif",
+        "Arial, sans-serif",
+        "Helvetica, sans-serif",
+        "Verdana, sans-serif",
+        "Tahoma, sans-serif",
+        "Trebuchet MS, sans-serif",
+        "Impact, sans-serif",
+        "Courier New, monospace",
+        "Lucida Console, monospace",
+        "Consolas, monospace",
+        "Comic Sans MS, cursive",
+        "serif",
+        "sans-serif",
+        "monospace",
+        "cursive",
+        "fantasy"
+      ];
+      const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
+      document.getElementById("body").style.fontFamily = randomFont;
+    }
+  </script>
+</body>
+</html>
